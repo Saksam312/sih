@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MINEXA – Underground Mine Safety Command Center</title>
+  <meta name="description" content="AI-Powered Underground Mine Safety, Real-Time Monitoring and Rescue Control System">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome / Feather SVG Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="theme-dark">
+  <div class="app-container">
+    
+    <!-- 1. HEADER SECTION -->
+    <header class="main-header">
+      <div class="header-left">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">MINEXA</span>
+            <span class="brand-sub">AI MINE SAFETY SYSTEM</span>
+          </div>
+        </div>
+        <div class="divider-v"></div>
+        <div class="system-title">
+          <h1>Underground Mine Safety Command Center</h1>
+          <span class="subtitle">Real-time Telemetry & Rescue Operations</span>
+        </div>
+      </div>
+
+      <div class="header-center"></div>
+
+      <div class="header-right">
+        <div class="status-pill online">
+          <span class="pulse-dot"></span>
+          <span id="systemStatusText">SYSTEM ONLINE</span>
+        </div>
+
+        <div class="datetime-display">
+          <div id="liveTime" class="time-text">16:02:44</div>
+          <div id="liveDate" class="date-text">2026-09-22 UTC</div>
+        </div>
+
+        <button id="simulateHazardBtn" class="btn btn-warning" onclick="window.minexaApp.changeScenario('critical')">
+          <i data-lucide="volume-2"></i>
+          <span>Simulate Hazard</span>
+        </button>
+
+        <button id="emergencyBtn" class="btn btn-emergency" onclick="window.minexaApp.triggerEmergencyEvac()">
+          <i data-lucide="alert-triangle"></i>
+          <span>EMERGENCY ALERT</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT SCROLL AREA -->
+    <main class="dashboard-grid">
+
+      <section class="top-row">
+        <div class="card risk-summary-card">
+          <div class="card-header compact-header">
+            <div class="card-title">
+              <i data-lucide="shield-alert" class="icon-risk"></i>
+              <h2>Overall Mine Safety Risk Score</h2>
+            </div>
+            <div class="card-meta">
+              <span class="ai-badge"><i data-lucide="cpu"></i> AI Risk Assessment</span>
+              <span class="updated-time">Last updated: <span id="lastUpdatedTime">Just now</span></span>
+            </div>
+          </div>
+
+          <div class="risk-card-body">
+            <div class="gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#3b82f6" />
+                    <stop offset="50%" stop-color="#eab308" />
+                    <stop offset="85%" stop-color="#f97316" />
+                    <stop offset="100%" stop-color="#ef4444" />
+                  </linearGradient>
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <circle class="gauge-track" cx="100" cy="100" r="80" stroke-dasharray="377" stroke-dashoffset="94" transform="rotate(135 100 100)" />
+                <circle id="gaugeProgress" class="gauge-progress" cx="100" cy="100" r="80" stroke-dasharray="377" stroke-dashoffset="199" transform="rotate(135 100 100)" filter="url(#glow)" />
+                <g class="gauge-center-text">
+                  <text id="gaugeScoreValue" class="gauge-score" x="100" y="95" text-anchor="middle">72%</text>
+                  <text id="gaugeStatusText" class="gauge-status status-high" x="100" y="122" text-anchor="middle">HIGH RISK</text>
+                  <text class="gauge-sub" x="100" y="140" text-anchor="middle">RISK INDEX</text>
+                </g>
+              </svg>
+            </div>
+
+            <div class="risk-levels-panel">
+              <div class="risk-scale-header">SAFE (0-25%) &nbsp;&nbsp; WARNING (26-50%) &nbsp;&nbsp; HIGH RISK (51-75%) &nbsp;&nbsp; CRITICAL (76-100%)</div>
+              <div class="risk-level-bars">
+                <div class="risk-step step-safe" id="stepSafe"><span class="step-label">SAFE</span><span class="step-range">0 - 25%</span></div>
+                <div class="risk-step step-warning" id="stepWarning"><span class="step-label">WARNING</span><span class="step-range">26 - 50%</span></div>
+                <div class="risk-step step-high active" id="stepHigh"><span class="step-label">HIGH RISK</span><span class="step-range">51 - 75%</span></div>
+                <div class="risk-step step-critical" id="stepCritical"><span class="step-label">CRITICAL</span><span class="step-range">76 - 100%</span></div>
+              </div>
+
+              <div class="risk-summary-copy">
+                Elevated methane concentrations detected in Zone B paired with reduced airflow velocity. AI model predicts risk escalation if ventilation is not adjusted.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card topology-card">
+          <div class="card-header compact-header">
+            <div class="card-title">
+              <i data-lucide="network" class="icon-comm"></i>
+              <h2>System Communication Topology</h2>
+            </div>
+            <span class="topology-live">● REAL-TIME SYNC</span>
+          </div>
+
+          <div class="comm-pipeline compact-pipeline">
+            <div class="pipeline-flow">
+              <div class="node-box compact-node">
+                <div class="node-icon"><i data-lucide="cpu"></i></div>
+                <div class="node-info"><span class="node-name">ESP32</span><span class="node-status text-green">ONLINE</span></div>
+              </div>
+              <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+              <div class="node-box compact-node">
+                <div class="node-icon"><i data-lucide="rss"></i></div>
+                <div class="node-info"><span class="node-name">MQTT / WS</span><span class="node-status text-green">CONNECTED</span></div>
+              </div>
+              <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+              <div class="node-box compact-node">
+                <div class="node-icon"><i data-lucide="server"></i></div>
+                <div class="node-info"><span class="node-name">FastAPI</span><span class="node-status text-green">ONLINE</span></div>
+              </div>
+              <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+              <div class="node-box compact-node">
+                <div class="node-icon"><i data-lucide="brain"></i></div>
+                <div class="node-info"><span class="node-name">ML Model</span><span class="node-status text-green">ACTIVE</span></div>
+              </div>
+              <div class="flow-arrow"><i data-lucide="chevron-right"></i></div>
+              <div class="node-box compact-node">
+                <div class="node-icon"><i data-lucide="database"></i></div>
+                <div class="node-info"><span class="node-name">Database</span><span class="node-status text-green">CONNECTED</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sensor-section">
+        <div class="section-title-bar">
+          <h2><span class="live-pill"><i data-lucide="activity"></i> Real-Time Atmospheric &amp; Safety Sensors (8 Telemetry Channels)</span></h2>
+          <span class="status-pill online"><span class="pulse-dot"></span> STREAMING AT 10Hz</span>
+        </div>
+        <div id="sensorsGrid" class="sensors-grid"></div>
+      </section>
+
+      <section class="mid-row">
+        <div class="card alerts-card">
+          <div class="card-header compact-header">
+            <div class="card-title">
+              <i data-lucide="bell-ring" class="icon-alert"></i>
+              <h2>Real-Time Safety Alerts</h2>
+            </div>
+            <span class="badge-count danger-badge">3 ACTIVE ALERTS</span>
+          </div>
+
+          <div class="alerts-list" id="alertsList"></div>
+        </div>
+
+        <div class="card robot-card wide-robot-card">
+          <div class="card-header compact-header">
+            <div class="card-title">
+              <i data-lucide="bot" class="icon-robot"></i>
+              <h2>Rescue / Inspection Robot (MINEXA Bot R-01)</h2>
+            </div>
+            <span class="topology-live active-pill">● ACTIVE PATROL</span>
+          </div>
+
+          <div class="robot-surface">
+            <div class="robot-metrics-inline">
+              <div class="robot-metric-inline"><span class="metric-label">Robot Status</span><span class="metric-value text-green">ACTIVE</span></div>
+              <div class="robot-metric-inline"><span class="metric-label">Current Zone</span><span class="metric-value text-cyan">Zone B</span></div>
+              <div class="robot-metric-inline"><span class="metric-label">Battery Level</span><span class="metric-value text-green">84%</span></div>
+              <div class="robot-metric-inline"><span class="metric-label">Camera Feed</span><span class="metric-value text-purple">1080p FLIR</span></div>
+            </div>
+
+            <div class="robot-camera-panel">
+              <div class="camera-header-mini">
+                <span>● Robot Camera - Zone B</span>
+                <span class="thermal-toggle">THERMAL</span>
+              </div>
+              <div class="cam-feed compact-cam">
+                <canvas id="robotCamCanvas" width="400" height="180"></canvas>
+                <div class="cam-hud-overlay">
+                  <div class="hud-corner top-left">CH4: 0.8% HIGH</div>
+                  <div class="hud-corner top-right">TEMP: 42°C</div>
+                  <div class="hud-corner bottom-left">LATENCY: 12ms</div>
+                  <div class="hud-corner bottom-right">IR SPOTLIGHT: ON</div>
+                </div>
+              </div>
+
+              <div class="robot-controls-row">
+                <button class="robot-control-btn"><i data-lucide="chevron-left"></i> Pan L</button>
+                <button class="robot-control-btn"><i data-lucide="chevron-right"></i> Pan R</button>
+                <button class="robot-control-btn"><i data-lucide="crosshair"></i> Deploy Sniffer Probe</button>
+                <button class="robot-control-btn"><i data-lucide="sun-medium"></i> IR Spotlight</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bottom-row">
+        <div class="card map-card">
+          <div class="card-header compact-header">
+            <div class="card-title">
+              <i data-lucide="map" class="icon-map"></i>
+              <h2>Underground Mine Zone & Telemetry Map</h2>
+            </div>
+            <div class="map-actions">
+              <span class="zone-badge">ZONE B HAZARD ACTIVE</span>
+              <button class="btn btn-sm btn-dark" onclick="window.minexaApp.resetMapView()">Reset</button>
+            </div>
+          </div>
+
+          <div class="map-wrapper">
+            <canvas id="mineMapCanvas"></canvas>
+          </div>
+          <div class="legend-footer">
+            <span>Markers:</span>
+            <span>Green = Safe</span>
+            <span>Yellow = Warning</span>
+            <span>Red = Hazard</span>
+            <span>Blue = Worker</span>
+            <span>Purple = Robot</span>
+          </div>
+        </div>
+
+        <div class="card worker-analytics">
+          <div class="card-header compact-header">
+            <div class="card-title">
+              <i data-lucide="users" class="icon-worker"></i>
+              <h2>Worker Safety & Location (UWB Pinpoint)</h2>
+            </div>
+            <span class="badge-count">5 Active Underground</span>
+          </div>
+
+          <div class="worker-alert-banner">CRITICAL SAFETY ALERT: 2 workers (W02, W05) located inside Zone B hazard radius (&lt;10m)!</div>
+
+          <div class="worker-table-container compact-table">
+            <table class="worker-table">
+              <thead>
+                <tr>
+                  <th>Worker</th>
+                  <th>Zone</th>
+                  <th>UWB Loc</th>
+                  <th>Hazard Dist</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="workerTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="ai-inline-card ai-panel-card">
+            <div class="ai-panel-header">
+              <div class="card-title ai-panel-title">
+                <i data-lucide="trending-up" class="icon-ai"></i>
+                <h2>AI Hazard Prediction Engine</h2>
+              </div>
+              <span class="ai-status-pill">XGBoost v2.4</span>
+            </div>
+
+            <div class="ai-panel-score-row">
+              <div class="ai-panel-score-box">
+                <div class="ai-panel-label">AI Risk Score</div>
+                <div class="ai-panel-value text-red">72%</div>
+              </div>
+              <div class="ai-panel-score-box">
+                <div class="ai-panel-label">Predicted Level</div>
+                <div class="ai-panel-badge badge-high">HIGH RISK</div>
+              </div>
+            </div>
+
+            <div class="ai-panel-factors">
+              <div class="factors-title">Main Contributing Factors:</div>
+              <ul class="factors-list full-factors-list">
+                <li><span class="check-mark">✓</span> Increased CH₄ (Methane buildup +0.3%/h)</li>
+                <li><span class="check-mark">✓</span> Reduced O₂ (19.8% Oxygen level)</li>
+                <li><span class="check-mark">✓</span> Low Airflow (0.6 m/s ventilation velocity)</li>
+                <li><span class="check-mark">✓</span> Increased Temperature (34.2 °C)</li>
+              </ul>
+            </div>
+
+            <div class="chart-wrap">
+              <div class="chart-label-row">
+                <span>Risk Trend (Last 30 Minutes)</span>
+                <span class="threshold-tag">Threshold (80% Critical)</span>
+              </div>
+              <canvas id="aiTrendCanvas" width="580" height="170"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- EMERGENCY MODAL OVERLAY -->
+  <div id="emergencyModal" class="modal-overlay hidden">
+    <div class="modal-content emergency-theme">
+      <div class="modal-header">
+        <i data-lucide="alert-octagon" class="modal-icon-alarm"></i>
+        <h2>CRITICAL EMERGENCY EVACUATION PROTOCOL</h2>
+      </div>
+      <div class="modal-body">
+        <p class="evac-warning-text">EMERGENCY PROTOCOL ACTIVATED FOR UNDERGROUND SECTORS.</p>
+        <div class="evac-details-box">
+          <div><strong>Triggered Zone:</strong> Zone B (Stope Extract 1)</div>
+          <div><strong>Hazard Level:</strong> Methane Accumulation (1.4%) & Ventilation Failure</div>
+          <div><strong>Automated Action:</strong> Siren Alarm Engaged, Strobe Lights Active, Ventilation Fans Set to Max Exhaust.</div>
+        </div>
+        <div class="evac-checklist">
+          <div class="check-item done"><i data-lucide="check-circle"></i> Audio Alarm Sounded in Zone A, B, C, D</div>
+          <div class="check-item done"><i data-lucide="check-circle"></i> Rescue Robot Dispatched to Assist Evacuation</div>
+          <div class="check-item done"><i data-lucide="check-circle"></i> Emergency Refuge Chamber Oxygen Valves Opened</div>
+          <div class="check-item pending"><i data-lucide="loader"></i> Worker Telemetry Evacuation Progress: 2/3 Clear</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.minexaApp.dismissEmergencyModal()">Dismiss Alarm</button>
+        <button class="btn btn-emergency" onclick="window.minexaApp.confirmFullEvacuation()"><i data-lucide="shield-alert"></i> CONFIRM MINE WIDE EVACUATION</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKER DETAIL MODAL OVERLAY -->
+  <div id="workerModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <i data-lucide="user-check"></i>
+        <h2 id="modalWorkerTitle">Worker Telemetry & Biosensors</h2>
+      </div>
+      <div class="modal-body" id="modalWorkerBody">
+        <!-- Dynamic content -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.minexaApp.closeWorkerModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/audio.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/robot.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
